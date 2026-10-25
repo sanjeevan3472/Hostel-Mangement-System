@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostel HMS · Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background-image: url('academic-1.webp'); 
+            background-repeat: no-repeat;
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Scaled down container to expose background, perfectly centered */
+        .login-container {
+            max-width: 440px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Translucent frosted glass container with enhanced blur */
+        .login-card {
+            background: rgba(255, 255, 255, 0.65); /* Reduced background opacity to show blur clearly */
+            -webkit-backdrop-filter: blur(24px); /* Safari support */
+            backdrop-filter: blur(24px); /* Increased blur radius */
+            border-radius: 28px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .login-header {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .login-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .login-brand .brand-icon {
+            font-size: 32px;
+        }
+
+        .login-brand h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b1a2b;
+        }
+
+        .login-brand h1 span {
+            color: #2d7bb6;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #527092;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 18px;
+        }
+
+        .login-form label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: #1a3450;
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 14px;
+            background: rgba(248, 250, 252, 0.85); /* Slightly translucent for cohesive look */
+            color: #0b1a2b;
+            transition: all 0.2s ease;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #2d7bb6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(45, 123, 182, 0.15);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #1a4060;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: #2d7bb6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1a5c8a, #2d7bb6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(26, 92, 138, 0.3);
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(26, 92, 138, 0.4);
+        }
+
+        .login-divider {
+            margin: 20px 0 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: rgba(203, 213, 225, 0.7);
+        }
+
+        .login-divider span {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 0 12px;
+            position: relative;
+            font-size: 11px;
+            color: #718eb0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+        }
+
+        /* Info Section positioned below the login form */
+        .login-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.5);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            text-align: center;
+        }
+
+        .info-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .info-card h3 {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0b1a2b;
+            margin-bottom: 2px;
+        }
+
+        .info-card p {
+            font-size: 11px;
+            color: #334155;
+            line-height: 1.35;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px 20px;
+            }
+
+            .login-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        /**
+ * Login Portal Page Script
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.login-form');
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+            alert('Please provide your login credentials.');
+            return;
+        }
+
+        const btn = form.querySelector('.btn-login');
+        btn.textContent = 'Authenticating...';
+        btn.style.opacity = '0.8';
+
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+    });
+});
+    </script>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-brand">
+                    <span class="brand-icon">🏠</span>
+                    <h1>Hostel<span>HMS</span></h1>
+                </div>
+                <p class="login-subtitle">Complaint Management System</p>
+            </div>
+
+            <form class="login-form" action="loading.html" method="GET">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="email" placeholder="admin@hostel.com" value="admin@hostel.com" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" placeholder="••••••••" value="password123" required />
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" checked />
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Sign In →</button>
+
+                <div class="login-divider">
+                    <span>Secure Portal</span>
+                </div>
+            </form>
+
+            <!-- Info Cards under the Form -->
+            <div class="login-info">
+                <div class="info-card">
+                    <div class="info-icon">🛡️</div>
+                    <h3>Secure Access</h3>
+                    <p>Encrypted & protected with industry security protocols.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📊</div>
+                    <h3>Real-time Dashboard</h3>
+                    <p>Track and resolve hostel complaints efficiently.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostel HMS · Notice Board & Interactive Polls</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #sidebar-toggle {
+            display: none;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f0f4f9;
+            color: #1a2634;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* HAMBURGER BUTTON */
+        .hamburger-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.1);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 270px;
+            background: linear-gradient(180deg, #0a1628 0%, #122a44 100%);
+            color: #b8cddf;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .brand-icon {
+            font-size: 34px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .sidebar-brand h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.3px;
+        }
+
+        .sidebar-brand h2 span {
+            color: #5ba3d9;
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            color: #8aaac4;
+            margin-top: 2px;
+        }
+
+        .brand-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .brand-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2d7bb6;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .brand-user-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+
+        .brand-user-role {
+            font-size: 11px;
+            color: #8aaac4;
+            margin-top: 2px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            margin-bottom: 20px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 16px;
+            border-radius: 12px;
+            color: #a0bdd4;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(91, 163, 217, 0.15);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 28px 36px 40px;
+            overflow-y: auto;
+            min-width: 0;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b1a2b;
+            letter-spacing: -0.3px;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: #6d8aa8;
+            margin-top: 4px;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #1a5c8a, #2d7bb6);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(26, 92, 138, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-action.secondary {
+            background: linear-gradient(135deg, #0b1a2b, #1a3450);
+            box-shadow: 0 4px 16px rgba(11, 26, 43, 0.25);
+        }
+
+        .notice-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 24px;
+        }
+
+        .notice-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px 28px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-header h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0b1a2b;
+        }
+
+        /* NOTICE ITEMS */
+        .notice-item {
+            padding: 18px;
+            background: #f8fafc;
+            border-left: 4px solid #1a5c8a;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            border-top: 1px solid #eef2f6;
+            border-right: 1px solid #eef2f6;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .notice-item.urgent {
+            border-left-color: #b33c3c;
+            background: #fdf8f8;
+        }
+
+        .notice-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0b1a2b;
+            margin-bottom: 6px;
+        }
+
+        .notice-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .notice-img {
+            width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 12px;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .notice-meta {
+            font-size: 11px;
+            color: #6d8aa8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.04);
+        }
+
+        /* POLL STYLES */
+        .poll-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .poll-box {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .poll-question {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0b1a2b;
+            margin-bottom: 14px;
+        }
+
+        .poll-option {
+            background: white;
+            border: 1.5px solid #cbd5e1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+
+        .poll-option:hover {
+            border-color: #1a5c8a;
+            background: #f0f7fe;
+        }
+
+        .poll-bar-container {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .poll-bar-fill {
+            height: 100%;
+            background: #1a5c8a;
+            border-radius: 10px;
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 480px;
+            padding: 28px;
+            border-radius: 24px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6d8aa8;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f4f9;
+            border: none;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1024px) {
+            .notice-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="checkbox" id="sidebar-toggle" />
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="brand-icon">🏠</div>
+                    <div>
+                        <h2>Hostel<span>HMS</span></h2>
+                        <p>Complaint Management</p>
+                    </div>
+            </div>
+            <label for="sidebar-toggle" class="hamburger-btn" title="Toggle Menu">☰</label>
+        </div>
+
+        <div class="brand-user-card">
+            <div class="brand-user-avatar">RM</div>
+            <div class="brand-user-info">
+                <span class="brand-user-name">Rahul Mehta</span>
+                <span class="brand-user-role">Administrator</span>
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item active"><span class="nav-icon">📊</span> Dashboard<span
+                        class="nav-badge">12</span></a>
+                <a href="complaint.html" class="nav-item"><span class="nav-icon">➕</span> New Complaint</a>
+                <a href="resident.html" class="nav-item"><span class="nav-icon">👥</span> Residents<span
+                        class="nav-badge">128</span></a>
+                <a href="rooms.html" class="nav-item"><span class="nav-icon">🛏️</span> Rooms</a>
+                <a href="analytics.html" class="nav-item"><span class="nav-icon">📈</span> Analytics</a>
+                <a href="notice.html" class="nav-item">
+                <span class="nav-icon">📢</span> Notice Board & Polls
+            </a>
+                <a href="loading2.html" class="nav-item"><span class="nav-icon">⚙️</span> Logout</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <div class="topbar">
+            <div class="header-title">
+                <h1>Official Notice Board & Event Polls</h1>
+                <p>Centralized broadcast channel with image support and interactive polling</p>
+            </div>
+            <div class="action-buttons-group">
+                <button class="btn-action" onclick="openNoticeModal()">➕ Add Notice</button>
+                <button class="btn-action secondary" onclick="openPollModal()">📊 Add Poll</button>
+            </div>
+        </div>
+
+        <div class="notice-grid">
+            <!-- LEFT: NOTICE BOARD -->
+            <div>
+                <div class="notice-card">
+                    <div class="card-header">
+                        <h3>📌 Pinned Notices & Announcements</h3>
+                        <span style="font-size:11px; background:#e8f0fe; color:#1a5c8a; padding:4px 10px; border-radius:20px; font-weight:600;">Live Feed</span>
+                    </div>
+
+                    <div id="noticeFeedContainer">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: EVENT POLLS -->
+            <div>
+                <div class="notice-card">
+                    <div class="card-header">
+                        <h3>📊 Active Student Polls</h3>
+                        <span style="font-size:11px; background:#e8f0fe; color:#1a5c8a; padding:4px 10px; border-radius:20px; font-weight:600;">Live Voting</span>
+                    </div>
+
+                    <div class="poll-container" id="pollFeedContainer">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ADD NOTICE MODAL -->
+    <div id="noticeModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeNoticeModal()">✕</button>
+            <h3 style="margin-bottom:16px; color:#0b1a2b;">Post New Notice</h3>
+            
+            <div class="form-group">
+                <label>Notice Title</label>
+                <input type="text" id="noticeTitleInput" placeholder="e.g., Annual Sports Meet Registration" />
+            </div>
+
+            <div class="form-group">
+                <label>Priority Level</label>
+                <select id="noticePriorityInput">
+                    <option value="normal">Normal Notice</option>
+                    <option value="urgent">Urgent / Emergency</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Description & Details</label>
+                <textarea id="noticeDescInput" rows="4" placeholder="Enter notice details..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Attach Image (Optional)</label>
+                <input type="file" id="noticeImageInput" accept="image/*" />
+            </div>
+
+            <button onclick="saveNewNotice()" style="width:100%; background:#1a5c8a; color:white; border:none; padding:12px; border-radius:10px; font-weight:600; cursor:pointer; margin-top:10px;">Publish Notice</button>
+        </div>
+    </div>
+
+    <!-- ADD POLL MODAL -->
+    <div id="pollModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closePollModal()">✕</button>
+            <h3 style="margin-bottom:16px; color:#0b1a2b;">Create New Poll</h3>
+            
+            <div class="form-group">
+                <label>Poll Question</label>
+                <input type="text" id="pollQuestionInput" placeholder="e.g., Select weekend movie screening" />
+            </div>
+
+            <div class="form-group">
+                <label>Option 1</label>
+                <input type="text" id="pollOpt1Input" placeholder="First option" />
+            </div>
+
+            <div class="form-group">
+                <label>Option 2</label>
+                <input type="text" id="pollOpt2Input" placeholder="Second option" />
+            </div>
+
+            <div class="form-group">
+                <label>Option 3 (Optional)</label>
+                <input type="text" id="pollOpt3Input" placeholder="Third option" />
+            </div>
+
+            <button onclick="saveNewPoll()" style="width:100%; background:#1a5c8a; color:white; border:none; padding:12px; border-radius:10px; font-weight:600; cursor:pointer; margin-top:10px;">Create Poll</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT FOR NOTICE BOARD & POLLS -->
+    <script>
+        function getNotices() {
+            let notices = JSON.parse(localStorage.getItem('hms_notices'));
+            if (!notices) {
+                notices = [
+                    {
+                        title: '🚨 Water Supply Shutdown on Sunday',
+                        desc: 'Please note that due to overhead tank maintenance and pipeline cleaning, water supply will remain suspended this Sunday from 9:00 AM to 3:00 PM.',
+                        priority: 'urgent',
+                        author: 'Chief Warden',
+                        date: '18 Oct 2026',
+                        image: ''
+                    },
+                    {
+                        title: '💡 Night Study Room Timings Extended',
+                        desc: 'In view of the upcoming end-semester examinations, the Central Library and Hostel Reading Room will remain open 24/7 starting Monday.',
+                        priority: 'normal',
+                        author: 'Academic Committee',
+                        date: '16 Oct 2026',
+                        image: ''
+                    }
+                ];
+                localStorage.setItem('hms_notices', JSON.stringify(notices));
+            }
+            return notices;
+        }
+
+        function getPolls() {
+            let polls = JSON.parse(localStorage.getItem('hms_polls'));
+            if (!polls) {
+                polls = [
+                    {
+                        id: 1,
+                        question: "Voting for Next Week's Special Mess Dinner:",
+                        options: [
+                            { text: "Paneer Tikka & Naan", votes: 90, percent: 64 },
+                            { text: "South Indian Dosa Night", votes: 31, percent: 22 },
+                            { text: "Chinese Hakka Noodles", votes: 21, percent: 14 }
+                        ],
+                        totalVotes: 142
+                    }
+                ];
+                localStorage.setItem('hms_polls', JSON.stringify(polls));
+            }
+            return polls;
+        }
+
+        function renderNotices() {
+            const container = document.getElementById('noticeFeedContainer');
+            const notices = getNotices();
+            container.innerHTML = '';
+
+            notices.forEach(n => {
+                const item = document.createElement('div');
+                item.className = `notice-item ${n.priority === 'urgent' ? 'urgent' : ''}`;
+                let imgHtml = n.image ? `<img src="${n.image}" class="notice-img" />` : '';
+
+                item.innerHTML = `
+                    <div class="notice-title">${n.title}</div>
+                    <div class="notice-desc">${n.desc}</div>
+                    ${imgHtml}
+                    <div class="notice-meta"><span>Posted by: ${n.author}</span><span>${n.date}</span></div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderPolls() {
+            const container = document.getElementById('pollFeedContainer');
+            const polls = getPolls();
+            container.innerHTML = '';
+
+            polls.forEach(p => {
+                const box = document.createElement('div');
+                box.className = 'poll-box';
+                
+                let optionsHtml = '';
+                p.options.forEach((opt, idx) => {
+                    optionsHtml += `
+                        <div class="poll-option" onclick="voteOnPoll(${p.id}, ${idx})">
+                            <span>${opt.text}</span><span>${opt.percent}%</span>
+                        </div>
+                        <div class="poll-bar-container"><div class="poll-bar-fill" style="width: ${opt.percent}%;"></div></div>
+                    `;
+                });
+
+                box.innerHTML = `
+                    <div class="poll-question">${p.question}</div>
+                    ${optionsHtml}
+                    <div style="font-size: 11px; color: #6d8aa8; margin-top: 8px; text-align: right;">Total Votes Cast: ${p.totalVotes}</div>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function openNoticeModal() { document.getElementById('noticeModal').classList.add('active'); }
+        function closeNoticeModal() { document.getElementById('noticeModal').classList.remove('active'); }
+
+        function openPollModal() { document.getElementById('pollModal').classList.add('active'); }
+        function closePollModal() { document.getElementById('pollModal').classList.remove('active'); }
+
+        function saveNewNotice() {
+            const title = document.getElementById('noticeTitleInput').value.trim();
+            const desc = document.getElementById('noticeDescInput').value.trim();
+            const priority = document.getElementById('noticePriorityInput').value;
+            const fileInput = document.getElementById('noticeImageInput');
+
+            if (!title || !desc) {
+                alert('Please provide both a title and description.');
+                return;
+            }
+
+            const newNotice = {
+                title, desc, priority,
+                author: 'Rahul Mehta (Admin)',
+                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                image: ''
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newNotice.image = e.target.result;
+                    persistNotice(newNotice);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                persistNotice(newNotice);
+            }
+        }
+
+        function persistNotice(noticeObj) {
+            let notices = getNotices();
+            notices.unshift(noticeObj);
+            localStorage.setItem('hms_notices', JSON.stringify(notices));
+            closeNoticeModal();
+            renderNotices();
+            alert('Notice published successfully!');
+        }
+
+        function saveNewPoll() {
+            const question = document.getElementById('pollQuestionInput').value.trim();
+            const opt1 = document.getElementById('pollOpt1Input').value.trim();
+            const opt2 = document.getElementById('pollOpt2Input').value.trim();
+            const opt3 = document.getElementById('pollOpt3Input').value.trim();
+
+            if (!question || !opt1 || !opt2) {
+                alert('Please provide a question and at least two options.');
+                return;
+            }
+
+            let options = [
+                { text: opt1, votes: 1, percent: 50 },
+                { text: opt2, votes: 1, percent: 50 }
+            ];
+            if (opt3) {
+                options = [
+                    { text: opt1, votes: 1, percent: 34 },
+                    { text: opt2, votes: 1, percent: 33 },
+                    { text: opt3, votes: 1, percent: 33 }
+                ];
+            }
+
+            const newPoll = {
+                id: Date.now(),
+                question,
+                options,
+                totalVotes: options.reduce((sum, o) => sum + o.votes, 0)
+            };
+
+            let polls = getPolls();
+            polls.unshift(newPoll);
+            localStorage.setItem('hms_polls', JSON.stringify(polls));
+            closePollModal();
+            renderPolls();
+            alert('Poll created successfully!');
+        }
+
+        function voteOnPoll(pollId, optIdx) {
+            let polls = getPolls();
+            let poll = polls.find(p => p.id === pollId);
+            if (poll) {
+                poll.totalVotes++;
+                poll.options[optIdx].votes++;
+                // Recalculate percentages
+                poll.options.forEach(o => {
+                    o.percent = Math.round((o.votes / poll.totalVotes) * 100);
+                });
+                localStorage.setItem('hms_polls', JSON.stringify(polls));
+                renderPolls();
+                alert('Your vote has been successfully recorded!');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNotices();
+            renderPolls();
+        });
+    </script>
+</body>
+
+</html>

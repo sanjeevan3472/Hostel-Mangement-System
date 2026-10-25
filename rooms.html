@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostel HMS · Room Directory & Room Swap Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #sidebar-toggle {
+            display: none;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f0f4f9;
+            color: #1a2634;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* HAMBURGER BUTTON */
+        .hamburger-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.1);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 270px;
+            background: linear-gradient(180deg, #0a1628 0%, #122a44 100%);
+            color: #b8cddf;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .brand-icon {
+            font-size: 34px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .sidebar-brand h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.3px;
+        }
+
+        .sidebar-brand h2 span {
+            color: #5ba3d9;
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            color: #8aaac4;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .brand-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2d7bb6;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .brand-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-user-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+
+        .brand-user-role {
+            font-size: 11px;
+            color: #8aaac4;
+            margin-top: 2px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            margin-bottom: 20px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 16px;
+            border-radius: 12px;
+            color: #a0bdd4;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(91, 163, 217, 0.15);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 28px 36px 40px;
+            overflow-y: auto;
+            min-width: 0;
+        }
+
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b1a2b;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: #6d8aa8;
+            margin-top: 4px;
+        }
+
+        .room-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin: 20px 0 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b1a2b;
+        }
+
+        .stat-lbl {
+            font-size: 12px;
+            color: #6d8aa8;
+        }
+
+        .block-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            display: none;
+        }
+
+        .tab-label {
+            padding: 10px 22px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6d8aa8;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .tab-label:hover {
+            background: #e8f0fe;
+            color: #1a5c8a;
+        }
+
+        #tab-block-a:checked ~ .block-tabs label[for="tab-block-a"],
+        #tab-block-b:checked ~ .block-tabs label[for="tab-block-b"],
+        #tab-block-c:checked ~ .block-tabs label[for="tab-block-c"],
+        #tab-block-d:checked ~ .block-tabs label[for="tab-block-d"],
+        #tab-requests:checked ~ .block-tabs label[for="tab-requests"] {
+            background: linear-gradient(135deg, #1a5c8a, #2d7bb6);
+            color: white;
+            border-color: #1a5c8a;
+            box-shadow: 0 4px 12px rgba(26, 92, 138, 0.25);
+        }
+
+        .block-grid, .requests-section {
+            display: none;
+        }
+
+        #tab-block-a:checked ~ .content-container #grid-block-a,
+        #tab-block-b:checked ~ .content-container #grid-block-b,
+        #tab-block-c:checked ~ .content-container #grid-block-c,
+        #tab-block-d:checked ~ .content-container #grid-block-d {
+            display: grid;
+        }
+
+        #tab-requests:checked ~ .content-container #section-requests {
+            display: block;
+        }
+
+        .room-grid {
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 20px;
+        }
+
+        .room-tile {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .room-no {
+            font-weight: 700;
+            font-size: 18px;
+            color: #0b1a2b;
+        }
+
+        .room-type {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6d8aa8;
+            background: #f0f4f9;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .room-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .status-allocated { background: #e6f4ea; color: #1b7a3e; }
+        .status-vacant { background: #fef0d5; color: #9e6d1a; }
+
+        .occupants-list {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f4f9;
+            min-height: 42px;
+            flex-wrap: wrap;
+        }
+
+        .occ-badge {
+            background: #e8f0fe;
+            color: #1a5c8a;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .occ-empty {
+            font-size: 12px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .room-action-btn {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a5c8a;
+            background: #f0f7fe;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .room-action-btn:hover {
+            background: #1a5c8a;
+            color: white;
+        }
+
+        /* REQUESTS TABLE */
+        .requests-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .req-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+
+        .req-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: #6d8aa8;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .req-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #eef2f6;
+            vertical-align: middle;
+        }
+
+        .btn-approve {
+            background: #e6f4ea;
+            color: #1b7a3e;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-approve:hover { background: #1b7a3e; color: white; }
+
+        .btn-reject {
+            background: #fde8e8;
+            color: #b33c3c;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .btn-reject:hover { background: #b33c3c; color: white; }
+
+        .submit-req-box {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 14px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .form-row select, .form-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 480px;
+            padding: 28px;
+            border-radius: 24px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6d8aa8;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f4f9;
+            border: none;
+        }
+
+        .occupant-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f4f9;
+            font-size: 14px;
+        }
+
+        .remove-occ-btn {
+            background: #fde8e8;
+            color: #b33c3c;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="checkbox" id="sidebar-toggle" />
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="brand-icon">🏠</div>
+                <div>
+                    <h2>Hostel<span>HMS</span></h2>
+                    <p>Complaint Management</p>
+                </div>
+            </div>
+            <label for="sidebar-toggle" class="hamburger-btn" title="Toggle Menu">☰</label>
+        </div>
+
+        <div class="brand-user-card">
+            <div class="brand-user-avatar">RM</div>
+            <div class="brand-user-info">
+                <span class="brand-user-name">Rahul Mehta</span>
+                <span class="brand-user-role">Administrator</span>
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">📊 Dashboard</a>
+            <a href="rooms.html" class="nav-item active">🛏️ Rooms & Swaps</a>
+            <a href="resident.html" class="nav-item">👥 Residents</a>
+            <a href="mess.html" class="nav-item">🍽️ Mess Menu</a>
+            <a href="notice.html" class="nav-item">
+                <span class="nav-icon">📢</span> Notice Board & Polls
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <div class="header-title">
+            <h1>Hostel Room Directory & Relocation Portal</h1>
+            <p>Monitor live room occupancy and manage digital room swap requests</p>
+        </div>
+
+        <!-- OVERVIEW STATS -->
+        <div class="room-stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e8f0fe;">🏢</div>
+                <div>
+                    <div class="stat-val">16</div>
+                    <div class="stat-lbl">Total Rooms</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e6f4ea;">🛏️</div>
+                <div>
+                    <div class="stat-val" id="totalAllocatedDisplay">Loading...</div>
+                    <div class="stat-lbl">Rooms Allocated</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef0d5;">🔄</div>
+                <div>
+                    <div class="stat-val" id="totalRequestsDisplay">0</div>
+                    <div class="stat-lbl">Pending Swap Requests</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RADIO TRIGGERS FOR TABS -->
+        <input type="radio" id="tab-block-a" name="block-tab" class="tab-btn" checked />
+        <input type="radio" id="tab-block-b" name="block-tab" class="tab-btn" />
+        <input type="radio" id="tab-block-c" name="block-tab" class="tab-btn" />
+        <input type="radio" id="tab-block-d" name="block-tab" class="tab-btn" />
+        <input type="radio" id="tab-requests" name="block-tab" class="tab-btn" />
+
+        <!-- TAB HEADERS -->
+        <div class="block-tabs">
+            <label for="tab-block-a" class="tab-label">Block A (Boys)</label>
+            <label for="tab-block-b" class="tab-label">Block B (Girls)</label>
+            <label for="tab-block-c" class="tab-label">Block C (Senior)</label>
+            <label for="tab-block-d" class="tab-label">Block D (PG)</label>
+            <label for="tab-requests" class="tab-label" style="background: #e8f0fe; color: #1a5c8a;">🔄 Room Swap / Relocation Portal</label>
+        </div>
+
+        <!-- CONTENT CONTAINER -->
+        <div class="content-container">
+
+            <!-- BLOCK A -->
+            <div id="grid-block-a" class="block-grid room-grid">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- BLOCK B -->
+            <div id="grid-block-b" class="block-grid room-grid">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- BLOCK C -->
+            <div id="grid-block-c" class="block-grid room-grid">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- BLOCK D -->
+            <div id="grid-block-d" class="block-grid room-grid">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- RELOCATION REQUESTS PORTAL TAB -->
+            <div id="section-requests" class="requests-section">
+                
+                <!-- Submit Request Box for Students -->
+                <div class="submit-req-box">
+                    <h3 style="font-size:16px; color:#0b1a2b; margin-bottom:4px;">📝 Submit New Room Swap / Relocation Request</h3>
+                    <p style="font-size:13px; color:#6d8aa8; margin-bottom:12px;">Students can submit a shift request here for administrator approval.</p>
+                    <div class="form-row">
+                        <select id="reqStudentSelect">
+                            <option value="">Select Student...</option>
+                        </select>
+                        <select id="reqTargetRoomSelect">
+                            <option value="">Select Target Room...</option>
+                        </select>
+                        <button onclick="submitRelocationRequest()" style="background:#1a5c8a; color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer;">Submit Request</button>
+                    </div>
+                </div>
+
+                <!-- Admin Approval Table -->
+                <div class="requests-card">
+                    <h3 style="font-size:16px; color:#0b1a2b; margin-bottom:4px;">⚙️ Pending Room Relocation & Swap Requests</h3>
+                    <p style="font-size:13px; color:#6d8aa8; margin-bottom:12px;">Approving a request automatically swaps the room allocations in the system.</p>
+                    
+                    <div style="overflow-x:auto;">
+                        <table class="req-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Current Room</th>
+                                    <th>Requested Room</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTableBody">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL -->
+    <div id="roomModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeRoomModal()">✕</button>
+            <h3 id="modalRoomTitle" style="margin-bottom:16px; color:#0b1a2b;">Manage Room</h3>
+            <div style="margin-bottom: 16px;">
+                <h4 style="font-size: 13px; color: #6d8aa8; margin-bottom: 8px; text-transform: uppercase;">Current Occupants</h4>
+                <div id="currentOccupantsList"></div>
+            </div>
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                <h4 style="font-size: 13px; color: #6d8aa8; margin-bottom: 8px; text-transform: uppercase;">Assign Resident from Directory</h4>
+                <div style="display: flex; gap: 8px;">
+                    <select id="residentSelectDropdown" style="flex: 1; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 13px;"></select>
+                    <button onclick="assignResidentToRoom()" style="background: #1a5c8a; color: white; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer;">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT FOR ROOMS & SWAP PORTAL -->
+    <script>
+        let currentActiveRoom = null;
+        const allRooms = ['A-101', 'A-102', 'A-103', 'A-104', 'B-045', 'B-046', 'B-047', 'B-048', 'C-201', 'C-202', 'C-203', 'C-204', 'D-101', 'D-102', 'D-103', 'D-104'];
+
+        function getResidentDirectory() {
+            const defaultRes = [
+                { name: 'Rahul Mehta', room: 'C-204' },
+                { name: 'Arjun Nair', room: 'A-101' },
+                { name: 'Priya K.', room: 'B-045' },
+                { name: 'Sameer W.', room: 'C-201' },
+                { name: 'Ananya Sharma', room: 'B-048' },
+                { name: 'Karan Malhotra', room: 'A-101' },
+                { name: 'Siddharth T.', room: 'C-204' },
+                { name: 'Neha Gupta', room: 'B-045' },
+                { name: 'Rohan Verma', room: 'A-102' },
+                { name: 'Divya Patel', room: 'D-101' }
+            ];
+            const storedNew = JSON.parse(localStorage.getItem('hms_new_residents')) || [];
+            return [...storedNew.map(r => ({ name: r.fullName, room: r.roomNumber })), ...defaultRes];
+        }
+
+        function getRoomAssignments() {
+            let assignments = JSON.parse(localStorage.getItem('hms_room_assignments'));
+            if (!assignments) {
+                assignments = {
+                    'A-101': ['Arjun Nair', 'Karan Malhotra'],
+                    'A-102': ['Rohan Verma'],
+                    'A-103': [], 'A-104': [],
+                    'B-045': ['Priya K.', 'Neha Gupta'],
+                    'B-046': [], 'B-047': [],
+                    'B-048': ['Ananya Sharma'],
+                    'C-201': ['Sameer W.'],
+                    'C-202': [], 'C-203': [],
+                    'C-204': ['Rahul Mehta', 'Siddharth T.'],
+                    'D-101': ['Divya Patel'],
+                    'D-102': [], 'D-103': [], 'D-104': []
+                };
+                localStorage.setItem('hms_room_assignments', JSON.stringify(assignments));
+            }
+            return assignments;
+        }
+
+        function getRelocationRequests() {
+            let reqs = JSON.parse(localStorage.getItem('hms_relocation_requests'));
+            if (!reqs) {
+                reqs = [
+                    { id: 1, student: 'Arjun Nair', currentRoom: 'A-101', targetRoom: 'A-103', status: 'Pending' },
+                    { id: 2, student: 'Priya K.', currentRoom: 'B-045', targetRoom: 'B-047', status: 'Pending' }
+                ];
+                localStorage.setItem('hms_relocation_requests', JSON.stringify(reqs));
+            }
+            return reqs;
+        }
+
+        function renderApp() {
+            const assignments = getRoomAssignments();
+            let allocatedCount = 0;
+
+            // Render Grids for Blocks A, B, C, D
+            const blocks = {
+                'grid-block-a': ['A-101', 'A-102', 'A-103', 'A-104'],
+                'grid-block-b': ['B-045', 'B-046', 'B-047', 'B-048'],
+                'grid-block-c': ['C-201', 'C-202', 'C-203', 'C-204'],
+                'grid-block-d': ['D-101', 'D-102', 'D-103', 'D-104']
+            };
+
+            for (const [gridId, rooms] of Object.entries(blocks)) {
+                const grid = document.getElementById(gridId);
+                if (!grid) continue;
+                grid.innerHTML = '';
+
+                rooms.forEach(roomNo => {
+                    const occupants = assignments[roomNo] || [];
+                    if (occupants.length > 0) allocatedCount++;
+
+                    const tile = document.createElement('div');
+                    tile.className = 'room-tile';
+                    tile.innerHTML = `
+                        <div>
+                            <div class="room-header"><span class="room-no">${roomNo}</span><span class="room-type">Room</span></div>
+                            <span class="room-status ${occupants.length > 0 ? 'status-allocated' : 'status-vacant'}">${occupants.length > 0 ? '🟢 Allocated' : '🟡 Vacant'}</span>
+                            <div class="occupants-list">
+                                ${occupants.length > 0 ? occupants.map(o => `<span class="occ-badge">👤 \${o}</span>`).join('') : '<span class="occ-empty">No occupants</span>'}
+                            </div>
+                        </div>
+                        <button class="room-action-btn" onclick="openRoomModal('${roomNo}')">Manage Room →</button>
+                    `;
+                    grid.appendChild(tile);
+                });
+            }
+
+            document.getElementById('totalAllocatedDisplay').textContent = `${allocatedCount} / ${allRooms.length}`;
+
+            // Render Requests Table
+            const reqs = getRelocationRequests();
+            const pendingReqs = reqs.filter(r => r.status === 'Pending');
+            document.getElementById('totalRequestsDisplay').textContent = pendingReqs.length;
+
+            const reqTableBody = document.getElementById('requestsTableBody');
+            reqTableBody.innerHTML = '';
+            if (reqs.length === 0) {
+                reqTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6d8aa8; padding:20px;">No relocation requests found.</td></tr>`;
+            } else {
+                reqs.forEach(req => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${req.student}</strong></td>
+                        <td>${req.currentRoom}</td>
+                        <td>${req.targetRoom}</td>
+                        <td><span style="font-weight:600; color:${req.status==='Approved'?'#1b7a3e':(req.status==='Rejected'?'#b33c3c':'#d97706')}">${req.status}</span></td>
+                        <td>
+                            ${req.status === 'Pending' ? `
+                                <button class="btn-approve" onclick="approveRequest(\${req.id})">Approve</button>
+                                <button class="btn-reject" onclick="rejectRequest(\${req.id})">Reject</button>
+                            ` : '<span style="color:#6d8aa8; font-size:12px;">Processed</span>'}
+                        </td>
+                    `;
+                    reqTableBody.appendChild(tr);
+                });
+            }
+
+            // Populate Student & Target Room Selects in Submit Box
+            const studentSelect = document.getElementById('reqStudentSelect');
+            studentSelect.innerHTML = `<option value="">Select Student...</option>`;
+            getResidentDirectory().forEach(res => {
+                studentSelect.innerHTML += `<option value="${res.name}">${res.name} (Current: ${res.room})</option>`;
+            });
+
+            const targetSelect = document.getElementById('reqTargetRoomSelect');
+            targetSelect.innerHTML = `<option value="">Select Target Room...</option>`;
+            allRooms.forEach(r => {
+                targetSelect.innerHTML += `<option value="${r}">Room ${r}</option>`;
+            });
+        }
+
+        function submitRelocationRequest() {
+            const student = document.getElementById('reqStudentSelect').value;
+            const targetRoom = document.getElementById('reqTargetRoomSelect').value;
+            if (!student || !targetRoom) {
+                alert('Please select both a student and a target room.');
+                return;
+            }
+
+            // Find current room
+            let currentRoom = 'A-101';
+            const assignments = getRoomAssignments();
+            for (const [r, occs] of Object.entries(assignments)) {
+                if (occs.includes(student)) { currentRoom = r; break; }
+            }
+
+            let reqs = getRelocationRequests();
+            reqs.unshift({ id: Date.now(), student, currentRoom, targetRoom, status: 'Pending' });
+            localStorage.setItem('hms_relocation_requests', JSON.stringify(reqs));
+            alert('Relocation request submitted successfully!');
+            renderApp();
+        }
+
+        function approveRequest(id) {
+            let reqs = getRelocationRequests();
+            let req = reqs.find(r => r.id === id);
+            if (!req) return;
+
+            let assignments = getRoomAssignments();
+            // Remove student from current room
+            for (const [r, occs] of Object.entries(assignments)) {
+                assignments[r] = occs.filter(s => s !== req.student);
+            }
+            // Add student to target room
+            if (!assignments[req.targetRoom]) assignments[req.targetRoom] = [];
+            assignments[req.targetRoom].push(req.student);
+
+            localStorage.setItem('hms_room_assignments', JSON.stringify(assignments));
+
+            req.status = 'Approved';
+            localStorage.setItem('hms_relocation_requests', JSON.stringify(reqs));
+            alert(`Request approved! ${req.student} has been successfully moved to Room ${req.targetRoom}.`);
+            renderApp();
+        }
+
+        function rejectRequest(id) {
+            let reqs = getRelocationRequests();
+            let req = reqs.find(r => r.id === id);
+            if (req) {
+                req.status = 'Rejected';
+                localStorage.setItem('hms_relocation_requests', JSON.stringify(reqs));
+                renderApp();
+            }
+        }
+
+        function openRoomModal(roomNo) {
+            currentActiveRoom = roomNo;
+            document.getElementById('modalRoomTitle').textContent = `Manage Room · ${roomNo}`;
+            const assignments = getRoomAssignments();
+            const occupants = assignments[roomNo] || [];
+
+            const occListDiv = document.getElementById('currentOccupantsList');
+            occListDiv.innerHTML = '';
+            if (occupants.length === 0) {
+                occListDiv.innerHTML = `<div style="font-size:13px; color:#6d8aa8; font-style:italic;">No residents currently assigned.</div>`;
+            } else {
+                occupants.forEach(occ => {
+                    occListDiv.innerHTML += `
+                        <div class="occupant-row">
+                            <span>👤 ${occ}</span>
+                            <button class="remove-occ-btn" onclick="removeResidentFromRoom('${occ}')">Remove</button>
+                        </div>
+                    `;
+                });
+            }
+
+            const dropdown = document.getElementById('residentSelectDropdown');
+            dropdown.innerHTML = '';
+            getResidentDirectory().forEach(res => {
+                dropdown.innerHTML += `<option value="${res.name}">${res.name} (Room: ${res.room})</option>`;
+            });
+
+            document.getElementById('roomModal').classList.add('active');
+        }
+
+        function closeRoomModal() {
+            document.getElementById('roomModal').classList.remove('active');
+            currentActiveRoom = null;
+            renderApp();
+        }
+
+        function assignResidentToRoom() {
+            const selectedName = document.getElementById('residentSelectDropdown').value;
+            if (!selectedName || !currentActiveRoom) return;
+
+            let assignments = getRoomAssignments();
+            if (!assignments[currentActiveRoom]) assignments[currentActiveRoom] = [];
+
+            if (!assignments[currentActiveRoom].includes(selectedName)) {
+                assignments[currentActiveRoom].push(selectedName);
+                localStorage.setItem('hms_room_assignments', JSON.stringify(assignments));
+                alert(`Assigned ${selectedName} to Room ${currentActiveRoom}`);
+                openRoomModal(currentActiveRoom);
+            } else {
+                alert(`${selectedName} is already in this room.`);
+            }
+        }
+
+        function removeResidentFromRoom(residentName) {
+            if (!currentActiveRoom) return;
+            let assignments = getRoomAssignments();
+            if (assignments[currentActiveRoom]) {
+                assignments[currentActiveRoom] = assignments[currentActiveRoom].filter(n => n !== residentName);
+                localStorage.setItem('hms_room_assignments', JSON.stringify(assignments));
+                openRoomModal(currentActiveRoom);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderApp);
+    </script>
+</body>
+
+</html>

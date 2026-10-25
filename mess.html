@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostel HMS · Mess Menu & Feedback</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        #sidebar-toggle {
+            display: none;
+        }
+
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: #f0f4f9; 
+            color: #1a2634; 
+            display: flex; 
+            min-height: 100vh; 
+        }
+
+        /* HAMBURGER BUTTON */
+        .hamburger-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.1);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* SIDEBAR */
+        .sidebar { 
+            width: 270px; 
+            background: linear-gradient(180deg, #0a1628 0%, #122a44 100%); 
+            color: #b8cddf; 
+            padding: 28px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            position: sticky; 
+            top: 0; 
+            height: 100vh; 
+            flex-shrink: 0; 
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .brand-icon {
+            font-size: 34px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .sidebar-brand h2 { 
+            font-size: 22px; 
+            font-weight: 700; 
+            color: white; 
+            letter-spacing: -0.3px;
+        }
+
+        .sidebar-brand h2 span { 
+            color: #5ba3d9; 
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            color: #8aaac4;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        /* BRAND USER CARD IN SIDEBAR */
+        .brand-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .brand-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2d7bb6;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .brand-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-user-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+
+        .brand-user-role {
+            font-size: 11px;
+            color: #8aaac4;
+            margin-top: 2px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            margin-bottom: 20px;
+        }
+
+        .sidebar-nav { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2px; 
+            flex: 1; 
+        }
+
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            padding: 11px 16px; 
+            border-radius: 12px; 
+            color: #a0bdd4; 
+            text-decoration: none; 
+            font-weight: 500; 
+            font-size: 14px; 
+            transition: 0.2s; 
+        }
+
+        .nav-item:hover { 
+            background: rgba(255, 255, 255, 0.06); 
+            color: white; 
+        }
+
+        .nav-item.active { 
+            background: rgba(91, 163, 217, 0.15); 
+            color: white; 
+            font-weight: 600; 
+        }
+
+        /* MAIN CONTENT */
+        .main-content { 
+            flex: 1; 
+            padding: 28px 36px 40px; 
+            overflow-y: auto; 
+            min-width: 0;
+        }
+        
+        .header-title h1 { font-size: 26px; font-weight: 700; color: #0b1a2b; }
+        .header-title p { font-size: 13px; color: #6d8aa8; margin-top: 4px; }
+
+        .day-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 24px 0 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            display: none;
+        }
+
+        .tab-label {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6d8aa8;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .tab-label:hover {
+            background: #e8f0fe;
+            color: #1a5c8a;
+        }
+
+        #tab-mon:checked ~ .day-tabs label[for="tab-mon"],
+        #tab-tue:checked ~ .day-tabs label[for="tab-tue"],
+        #tab-wed:checked ~ .day-tabs label[for="tab-wed"],
+        #tab-thu:checked ~ .day-tabs label[for="tab-thu"],
+        #tab-fri:checked ~ .day-tabs label[for="tab-fri"],
+        #tab-sat:checked ~ .day-tabs label[for="tab-sat"],
+        #tab-sun:checked ~ .day-tabs label[for="tab-sun"] {
+            background: linear-gradient(135deg, #1a5c8a, #2d7bb6);
+            color: white;
+            border-color: #1a5c8a;
+            box-shadow: 0 4px 12px rgba(26, 92, 138, 0.25);
+        }
+
+        .day-menu { display: none; }
+
+        #tab-mon:checked ~ .content-container #menu-mon,
+        #tab-tue:checked ~ .content-container #menu-tue,
+        #tab-wed:checked ~ .content-container #menu-wed,
+        #tab-thu:checked ~ .content-container #menu-thu,
+        #tab-fri:checked ~ .content-container #menu-fri,
+        #tab-sat:checked ~ .content-container #menu-sat,
+        #tab-sun:checked ~ .content-container #menu-sun {
+            display: grid;
+        }
+
+        .menu-grid { 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 22px; 
+        }
+
+        .meal-card { 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04); 
+            border: 1px solid #e2e8f0; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .meal-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+        }
+
+        .meal-img-container {
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meal-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .meal-time-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(11, 26, 43, 0.85);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .meal-content {
+            padding: 18px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .meal-card h3 { 
+            font-size: 17px; 
+            color: #0b1a2b; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center;
+            justify-content: space-between; 
+        }
+
+        .meal-items { 
+            font-size: 13px; 
+            color: #527092; 
+            line-height: 1.6; 
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .rating-box {
+            border-top: 1px solid #f0f4f9;
+            padding-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .rating-label-text {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8aaac4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rating { 
+            display: inline-flex; 
+            flex-direction: row-reverse; 
+            gap: 2px; 
+        }
+
+        .rating input { display: none; }
+
+        .rating label { 
+            font-size: 20px; 
+            color: #cbd5e1; 
+            cursor: pointer; 
+            transition: color 0.15s;
+        }
+
+        .rating label:hover, 
+        .rating label:hover ~ label, 
+        .rating input:checked ~ label { 
+            color: #f0b84d; 
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; padding: 20px 14px; }
+            .main-content { padding: 20px 20px 16px; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 16px 20px; flex-direction: column; align-items: stretch; }
+            .hamburger-btn { display: flex; }
+            .sidebar-divider,
+            .brand-user-card,
+            .sidebar-nav {
+                display: none;
+            }
+            #sidebar-toggle:checked ~ .sidebar .sidebar-divider,
+            #sidebar-toggle:checked ~ .sidebar .brand-user-card,
+            #sidebar-toggle:checked ~ .sidebar .sidebar-nav {
+                display: flex;
+            }
+            #sidebar-toggle:checked ~ .sidebar .sidebar-divider {
+                margin: 16px 0;
+            }
+            .main-content { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        /**
+ * Mess Menu & Feedback Page Script
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const ratingInputs = document.querySelectorAll('.rating input');
+
+    // Restore saved ratings
+    ratingInputs.forEach(input => {
+        const saved = localStorage.getItem(`mess_rating_${input.name}`);
+        if (saved && input.id.endsWith(`-${saved}`)) {
+            input.checked = true;
+        }
+
+        input.addEventListener('change', (e) => {
+            const card = e.target.closest('.meal-card');
+            const mealTitle = card ? card.querySelector('h3').textContent.trim() : 'Meal';
+            const stars = e.target.id.split('-').pop();
+
+            localStorage.setItem(`mess_rating_${e.target.name}`, stars);
+            showMessToast(`⭐ Rated ${mealTitle} ${stars} / 5 stars!`);
+        });
+    });
+});
+
+function showMessToast(msg) {
+    let t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#2d7bb6;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+}
+    </script>
+
+    <input type="checkbox" id="sidebar-toggle" />
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="brand-icon">🏠</div>
+                <div>
+                    <h2>Hostel<span>HMS</span></h2>
+                    <p>Complaint Management</p>
+                </div>
+            </div>
+            <label for="sidebar-toggle" class="hamburger-btn" title="Toggle Menu">☰</label>
+        </div>
+
+        <div class="brand-user-card">
+            <div class="brand-user-avatar">RM</div>
+            <div class="brand-user-info">
+                <span class="brand-user-name">Rahul Mehta</span>
+                <span class="brand-user-role">Administrator</span>
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">📊 Dashboard</a>
+            <a href="rooms.html" class="nav-item">🛏️ Rooms</a>
+            <a href="mess.html" class="nav-item active">🍽️ Mess Menu</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <div class="header-title">
+            <h1>Weekly Mess Menu & Food Feedback</h1>
+            <p>Select a day to view planned meals, timings, and submit instant food ratings</p>
+        </div>
+
+        <!-- Hidden Radio Triggers for Day Tabs -->
+        <input type="radio" id="tab-mon" name="day-tab" class="tab-btn" checked />
+        <input type="radio" id="tab-tue" name="day-tab" class="tab-btn" />
+        <input type="radio" id="tab-wed" name="day-tab" class="tab-btn" />
+        <input type="radio" id="tab-thu" name="day-tab" class="tab-btn" />
+        <input type="radio" id="tab-fri" name="day-tab" class="tab-btn" />
+        <input type="radio" id="tab-sat" name="day-tab" class="tab-btn" />
+        <input type="radio" id="tab-sun" name="day-tab" class="tab-btn" />
+
+        <!-- Tab Controls Header -->
+        <div class="day-tabs">
+            <label for="tab-mon" class="tab-label">Monday</label>
+            <label for="tab-tue" class="tab-label">Tuesday</label>
+            <label for="tab-wed" class="tab-label">Wednesday</label>
+            <label for="tab-thu" class="tab-label">Thursday</label>
+            <label for="tab-fri" class="tab-label">Friday</label>
+            <label for="tab-sat" class="tab-label">Saturday</label>
+            <label for="tab-sun" class="tab-label">Sunday</label>
+        </div>
+
+        <!-- Content Container -->
+        <div class="content-container">
+
+            <!-- MONDAY MENU -->
+            <div id="menu-mon" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80" alt="Paratha" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Breakfast 🥣</h3>
+                        <div class="meal-items">Aloo Paratha, Fresh Curd, Pickle, Butter, Hot Tea & Coffee</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="m1-5" name="r-m1" /><label for="m1-5">★</label>
+                                <input type="radio" id="m1-4" name="r-m1" /><label for="m1-4">★</label>
+                                <input type="radio" id="m1-3" name="r-m1" /><label for="m1-3">★</label>
+                                <input type="radio" id="m1-2" name="r-m1" /><label for="m1-2">★</label>
+                                <input type="radio" id="m1-1" name="r-m1" /><label for="m1-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80" alt="Paneer Lunch" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Lunch 🍛</h3>
+                        <div class="meal-items">Paneer Butter Masala, Dal Tadka, Steamed Jeera Rice, Tandoori Roti, Green Salad</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="m2-5" name="r-m2" /><label for="m2-5">★</label>
+                                <input type="radio" id="m2-4" name="r-m2" /><label for="m2-4">★</label>
+                                <input type="radio" id="m2-3" name="r-m2" /><label for="m2-3">★</label>
+                                <input type="radio" id="m2-2" name="r-m2" /><label for="m2-2">★</label>
+                                <input type="radio" id="m2-1" name="r-m2" /><label for="m2-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80" alt="Samosa Tea" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">Crispy Vegetable Samosa, Green Mint Chutney, Masala Chai, Biscuits</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="m3-5" name="r-m3" /><label for="m3-5">★</label>
+                                <input type="radio" id="m3-4" name="r-m3" /><label for="m3-4">★</label>
+                                <input type="radio" id="m3-3" name="r-m3" /><label for="m3-3">★</label>
+                                <input type="radio" id="m3-2" name="r-m3" /><label for="m3-2">★</label>
+                                <input type="radio" id="m3-1" name="r-m3" /><label for="m3-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80" alt="Dinner Thali" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Dinner 🌙</h3>
+                        <div class="meal-items">Dal Makhani, Mix Veg Curry, Butter Phulka, Rice, Gulab Jamun Sweet</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="m4-5" name="r-m4" /><label for="m4-5">★</label>
+                                <input type="radio" id="m4-4" name="r-m4" /><label for="m4-4">★</label>
+                                <input type="radio" id="m4-3" name="r-m4" /><label for="m4-3">★</label>
+                                <input type="radio" id="m4-2" name="r-m4" /><label for="m4-2">★</label>
+                                <input type="radio" id="m4-1" name="r-m4" /><label for="m4-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TUESDAY MENU -->
+            <div id="menu-tue" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80" alt="Idli Dosa" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Breakfast 🥣</h3>
+                        <div class="meal-items">Steamed Idli & Masala Dosa, Coconut Chutney, Hot Sambar, Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="tu1-5" name="r-tu1" /><label for="tu1-5">★</label>
+                                <input type="radio" id="tu1-4" name="r-tu1" /><label for="tu1-4">★</label>
+                                <input type="radio" id="tu1-3" name="r-tu1" /><label for="tu1-3">★</label>
+                                <input type="radio" id="tu1-2" name="r-tu1" /><label for="tu1-2">★</label>
+                                <input type="radio" id="tu1-1" name="r-tu1" /><label for="tu1-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80" alt="Rajma Rice" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Lunch 🍛</h3>
+                        <div class="meal-items">Special Rajma Masala, Steamed Basmati Rice, Chapati, Boondi Raita, Salad</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="tu2-5" name="r-tu2" /><label for="tu2-5">★</label>
+                                <input type="radio" id="tu2-4" name="r-tu2" /><label for="tu2-4">★</label>
+                                <input type="radio" id="tu2-3" name="r-tu2" /><label for="tu2-3">★</label>
+                                <input type="radio" id="tu2-2" name="r-tu2" /><label for="tu2-2">★</label>
+                                <input type="radio" id="tu2-1" name="r-tu2" /><label for="tu2-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&q=80" alt="Pakora" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">Assorted Mix Veg Pakora, Sweet Ketchup, Ginger Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="tu3-5" name="r-tu3" /><label for="tu3-5">★</label>
+                                <input type="radio" id="tu3-4" name="r-tu3" /><label for="tu3-4">★</label>
+                                <input type="radio" id="tu3-3" name="r-tu3" /><label for="tu3-3">★</label>
+                                <input type="radio" id="tu3-2" name="r-tu3" /><label for="tu3-2">★</label>
+                                <input type="radio" id="tu3-1" name="r-tu3" /><label for="tu3-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80" alt="Curry Dinner" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Dinner 🌙</h3>
+                        <div class="meal-items">Kadai Bhindi, Chana Dal, Roti, Rice, Kheer Dessert</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="tu4-5" name="r-tu4" /><label for="tu4-5">★</label>
+                                <input type="radio" id="tu4-4" name="r-tu4" /><label for="tu4-4">★</label>
+                                <input type="radio" id="tu4-3" name="r-tu4" /><label for="tu4-3">★</label>
+                                <input type="radio" id="tu4-2" name="r-tu4" /><label for="tu4-2">★</label>
+                                <input type="radio" id="tu4-1" name="r-tu4" /><label for="tu4-1">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WEDNESDAY MENU -->
+            <div id="menu-wed" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=600&q=80" alt="Puri Bhaji" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Breakfast 🥣</h3>
+                        <div class="meal-items">Hot Puri Bhaji, Pickle, Banana, Coffee & Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="w1-5" name="r-w1" /><label for="w1-5">★</label>
+                                <input type="radio" id="w1-4" name="r-w1" /><label for="w1-4">★</label>
+                                <input type="radio" id="w1-3" name="r-w1" /><label for="w1-3">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80" alt="Chole Bhature" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Lunch 🍛</h3>
+                        <div class="meal-items">Amritsari Chole, Fluffy Bhature, Rice, Sweet Lassi</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="w2-5" name="r-w2" /><label for="w2-5">★</label>
+                                <input type="radio" id="w2-4" name="r-w2" /><label for="w2-4">★</label>
+                                <input type="radio" id="w2-3" name="r-w2" /><label for="w2-3">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80" alt="Pav Bhaji" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">Butter Pav Bhaji, Chopped Onions, Hot Milk / Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="w3-5" name="r-w3" /><label for="w3-5">★</label>
+                                <input type="radio" id="w3-4" name="r-w3" /><label for="w3-4">★</label>
+                                <input type="radio" id="w3-3" name="r-w3" /><label for="w3-3">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80" alt="Special Dinner" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Special Dinner 🌙</h3>
+                        <div class="meal-items">Shahi Paneer / Chicken Curry option, Veg Pulao, Naan, Ice Cream</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="w4-5" name="r-w4" /><label for="w4-5">★</label>
+                                <input type="radio" id="w4-4" name="r-w4" /><label for="w4-4">★</label>
+                                <input type="radio" id="w4-3" name="r-w4" /><label for="w4-3">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THURSDAY MENU -->
+            <div id="menu-thu" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80" alt="Poha" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Breakfast 🥣</h3>
+                        <div class="meal-items">Indori Poha with Sev, Jalebi, Sprouts, Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="th1-5" name="r-th1" /><label for="th1-5">★</label>
+                                <input type="radio" id="th1-4" name="r-th1" /><label for="th1-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80" alt="Kadhi Pakora" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Lunch 🍛</h3>
+                        <div class="meal-items">Punjabi Kadhi Pakora, Steamed Rice, Aloo Jeera, Chapati</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="th2-5" name="r-th2" /><label for="th2-5">★</label>
+                                <input type="radio" id="th2-4" name="r-th2" /><label for="th2-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80" alt="Pasta" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">White Sauce Pasta, Garlic Bread, Iced Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="th3-5" name="r-th3" /><label for="th3-5">★</label>
+                                <input type="radio" id="th3-4" name="r-th3" /><label for="th3-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80" alt="Veg Thali" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Dinner 🌙</h3>
+                        <div class="meal-items">Dal Fry, Baingan Bharta, Chapati, Rice, Fruit Custard</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="th4-5" name="r-th4" /><label for="th4-5">★</label>
+                                <input type="radio" id="th4-4" name="r-th4" /><label for="th4-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FRIDAY MENU -->
+            <div id="menu-fri" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80" alt="Uttapam" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Breakfast 🥣</h3>
+                        <div class="meal-items">Onion Tomato Uttapam, Coconut Chutney, Sambhar, Coffee</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="f1-5" name="r-f1" /><label for="f1-5">★</label>
+                                <input type="radio" id="f1-4" name="r-f1" /><label for="f1-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80" alt="Veg Biryani" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Lunch 🍛</h3>
+                        <div class="meal-items">Hyderabadi Veg Biryani, Mirchi Ka Salan, Onion Raita, Papad</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="f2-5" name="r-f2" /><label for="f2-5">★</label>
+                                <input type="radio" id="f2-4" name="r-f2" /><label for="f2-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80" alt="Spring Roll" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">Veg Spring Rolls, Chili Sauce, Hot Masala Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="f3-5" name="r-f3" /><label for="f3-5">★</label>
+                                <input type="radio" id="f3-4" name="r-f3" /><label for="f3-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80" alt="Paneer Malai" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Dinner 🌙</h3>
+                        <div class="meal-items">Malai Kofta, Mix Dal, Butter Roti, Jeera Rice, Rasgulla</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="f4-5" name="r-f4" /><label for="f4-5">★</label>
+                                <input type="radio" id="f4-4" name="r-f4" /><label for="f4-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SATURDAY MENU -->
+            <div id="menu-sat" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80" alt="Gobi Paratha" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Breakfast 🥣</h3>
+                        <div class="meal-items">Gobi Stuffed Paratha, Butter, Pickle, Milk & Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="sa1-5" name="r-sa1" /><label for="sa1-5">★</label>
+                                <input type="radio" id="sa1-4" name="r-sa1" /><label for="sa1-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80" alt="South Meal" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Lunch 🍛</h3>
+                        <div class="meal-items">Sambhar Rice, Poriyal, Appalam Papad, Curd Rice</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="sa2-5" name="r-sa2" /><label for="sa2-5">★</label>
+                                <input type="radio" id="sa2-4" name="r-sa2" /><label for="sa2-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80" alt="Bhel Puri" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">Tangy Bhel Puri, Sev Puri, Cold Lemonade</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="sa3-5" name="r-sa3" /><label for="sa3-5">★</label>
+                                <input type="radio" id="sa3-4" name="r-sa3" /><label for="sa3-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80" alt="Chinese Dinner" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Weekend Chinese 🌙</h3>
+                        <div class="meal-items">Hakak Noodles, Veg Manchurian Gravy, Fried Rice, Ice Cream</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="sa4-5" name="r-sa4" /><label for="sa4-5">★</label>
+                                <input type="radio" id="sa4-4" name="r-sa4" /><label for="sa4-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUNDAY MENU -->
+            <div id="menu-sun" class="day-menu menu-grid">
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=600&q=80" alt="Chole Kulche" class="meal-img" />
+                        <span class="meal-time-tag">08:30 - 10:00 AM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Sunday Feast Breakfast 🥣</h3>
+                        <div class="meal-items">Butter Chole Kulche, Onion Salad, Mint Lassi, Tea</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="su1-5" name="r-su1" /><label for="su1-5">★</label>
+                                <input type="radio" id="su1-4" name="r-su1" /><label for="su1-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80" alt="Special Thali" class="meal-img" />
+                        <span class="meal-time-tag">01:00 - 02:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Grand Sunday Lunch 🍛</h3>
+                        <div class="meal-items">Paneer Lababdar, Dal Makhani, Peas Pulao, Butter Naan, Sweet Boondi</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="su2-5" name="r-su2" /><label for="su2-5">★</label>
+                                <input type="radio" id="su2-4" name="r-su2" /><label for="su2-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80" alt="Sandwich" class="meal-img" />
+                        <span class="meal-time-tag">05:00 - 06:00 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Evening Snacks ☕</h3>
+                        <div class="meal-items">Grilled Cheese Corn Sandwich, Potato Chips, Hot Coffee</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="su3-5" name="r-su3" /><label for="su3-5">★</label>
+                                <input type="radio" id="su3-4" name="r-su3" /><label for="su3-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meal-card">
+                    <div class="meal-img-container">
+                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80" alt="Light Dinner" class="meal-img" />
+                        <span class="meal-time-tag">08:00 - 09:30 PM</span>
+                    </div>
+                    <div class="meal-content">
+                        <h3>Light Dinner 🌙</h3>
+                        <div class="meal-items">Jeera Rice, Yellow Dal Fry, Aloo Tomato Curry, Chapati, Moong Dal Halwa</div>
+                        <div class="rating-box">
+                            <span class="rating-label-text">Rate Quality</span>
+                            <div class="rating">
+                                <input type="radio" id="su4-5" name="r-su4" /><label for="su4-5">★</label>
+                                <input type="radio" id="su4-4" name="r-su4" /><label for="su4-4">★</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
